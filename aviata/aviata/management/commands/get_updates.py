@@ -17,7 +17,7 @@ class Command(BaseCommand):
         return data['flights_checked']
 
     def handle(self, *args, **options):
-        # Flight.objects.clear()
+        Flight.objects.all().delete()
         DAYS = 30
         DATA_URL = 'https://api.skypicker.com/flights?'
         routes = Route.objects.all()
@@ -27,6 +27,7 @@ class Command(BaseCommand):
         for route in routes:
             for date in dates:
                 str_date = date.strftime("%d/%m/%Y")
+                print(route.from_code + " - " + route.to_code + " " + str_date)
                 
                 params = {
                     'fly_from': route.from_code,
@@ -40,11 +41,11 @@ class Command(BaseCommand):
                 for choice in data['data']:
                     if self.valid_booking(choice['booking_token']) and choice['availability']:
                         flight = Flight(
-                            route=route.id,
+                            route=route,
                             booking_token=choice['booking_token'],
                             price=choice['price'],
                             time=choice['dTimeUTC'],
-                            airline=choice['airline'],
+                            airline=', '.join(choice['airlines']),
                             duration=choice['fly_duration'],
                             seats=choice['availability']
                         )
