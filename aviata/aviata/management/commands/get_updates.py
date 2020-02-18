@@ -25,7 +25,6 @@ class Command(BaseCommand):
         routes = Route.objects.all()
         cur_date = datetime.datetime.today()
         dates = [cur_date + datetime.timedelta(days=x) for x in range(DAYS)]
-        local_tz = pytz.timezone("Asia/Almaty")
 
         def get_flights(route):
             for date in dates:
@@ -48,9 +47,7 @@ class Command(BaseCommand):
                                 route=route,
                                 booking_token=choice['booking_token'],
                                 price=choice['price'],
-                                time=local_tz.normalize(
-                                    datetime.datetime.utcfromtimestamp(choice['dTimeUTC']).astimezone(local_tz)
-                                ),
+                                time=datetime.datetime.utcfromtimestamp(choice['dTimeUTC']),
                                 airline=', '.join(choice['airlines']),
                                 duration=choice['fly_duration'],
                                 seats=choice['availability']['seats']
