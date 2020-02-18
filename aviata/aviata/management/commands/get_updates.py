@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from aviata.models import Route, Flight
 import datetime, requests
 import pytz
+import concurrent.futures
 
 class Command(BaseCommand):
     def valid_booking(self, token):
@@ -19,14 +20,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         Flight.objects.all().delete()
-        DAYS = 3
+        DAYS = 30
         DATA_URL = 'https://api.skypicker.com/flights?'
         routes = Route.objects.all()
         cur_date = datetime.datetime.today()
         dates = [cur_date + datetime.timedelta(days=x) for x in range(DAYS)]
         local_tz = pytz.timezone("Asia/Almaty")
-        
-        for route in routes:
+
+        def get_flights(route):
             for date in dates:
                 try:
                     str_date = date.strftime("%d/%m/%Y")
@@ -61,5 +62,8 @@ class Command(BaseCommand):
                 print('Finished these dates')
             
             print('Finished this route')
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(routes)) as executor:
+            executor.map(get_flights, routes)
         
         print('Updating flights is finished.')
