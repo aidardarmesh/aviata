@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         Flight.objects.all().delete()
-        DAYS = 30
+        DAYS = 3
         DATA_URL = 'https://api.skypicker.com/flights?'
         routes = Route.objects.all()
         cur_date = datetime.datetime.today()
@@ -55,8 +55,8 @@ class Command(BaseCommand):
                                 seats=choice['availability']['seats']
                             )
                             flight.save()
-                    except Exception as e:
-                        print(e)
+                except Exception as e:
+                    print(e)
             
                 print('Finished these dates')
             
