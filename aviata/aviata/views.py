@@ -1,11 +1,7 @@
 from django.shortcuts import render
 from aviata.models import Route, Flight
+from aviata.forms import RouteForm
 
 def index(request):
-    routes = Route.objects.all()
-    context = {
-        'routes': routes,
-    }
-    
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', {'form': RouteForm()})
 

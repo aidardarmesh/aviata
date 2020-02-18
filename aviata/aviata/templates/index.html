@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block page_content %}
 <p>Choose date and route</p>
-<ul>
-    {% for route in routes %}
-    <li>{{ route.from_code }} - {{ route.to_code }}</li>
-    {% endfor %}
-</ul>
+<form action="/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.route }}
+    </div>
+    <button type="submit" class="btn btn-primary">Find</button>
+</form>
 {% endblock %}
