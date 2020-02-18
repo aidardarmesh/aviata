@@ -1,4 +1,18 @@
 {% extends "base.html" %}
 {% block page_content %}
-{{ flights }}
+{% if flights %}
+    {% for flight in flights %}
+    <div class="card">
+        <div class="card-body">
+            <h3>Airline: {{ flight.airline }}</h3>
+            <p>Departure: {{ flight.time }}</p>
+            <p>Duration: {{ flight.duration }}</p>
+            <p>Seats: {{ flight.seats }}</p>
+            <p>Price for 1 adult: {{ flight.price }}</p>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <h1>There are no avialable flights, sorry.</h1>
+{% endif %}
 {% endblock %}
