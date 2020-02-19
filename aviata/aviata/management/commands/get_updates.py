@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from aviata.models import Route, Flight
-import datetime, requests
+import datetime, requests, random
 import concurrent.futures
 
 class Command(BaseCommand):
@@ -14,12 +14,14 @@ class Command(BaseCommand):
             'currency': 'USD',
         }
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36' + str(random.randint(0, 100)),
             'Content-Type': 'application/json; charset=utf-8',
         }
         try:
-            data = requests.get(url=CHECK_URL, headers=headers, params=params).json()
+            resp = requests.get(url=CHECK_URL, headers=headers, params=params)
+            data = resp.json()
         except Exception as e:
+            print(resp.headers, e)
             return False
 
         return data['flights_checked']
@@ -45,13 +47,15 @@ class Command(BaseCommand):
                     'date_to': str_date,
                 }
                 headers = {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36' + str(random.randint(0, 100)),
                     'Content-Type': 'application/json; charset=utf-8',
                 }
 
                 try:
-                    data = requests.get(url=DATA_URL, headers=headers, params=params).json()
+                    resp = requests.get(url=DATA_URL, headers=headers, params=params)
+                    data = resp.json()
                 except Exception as e:
+                    print(resp.headers, e)
                     continue
 
                 for choice in data['data']:
