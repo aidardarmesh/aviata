@@ -1,11 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
 from aviata.models import Route, Flight
-import datetime, requests, random
+import datetime, requests, random, time
 import concurrent.futures
 
 class Command(BaseCommand):
     def valid_booking(self, token):
         CHECK_URL = 'https://booking-api.skypicker.com/api/v0.1/check_flights?'
+        MAX_RETRIES = 10
         params = {
             'v': 2,
             'booking_token': token,
@@ -17,14 +18,16 @@ class Command(BaseCommand):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36' + str(random.randint(0, 100)),
             'Content-Type': 'application/json; charset=utf-8',
         }
-        try:
-            resp = requests.get(url=CHECK_URL, headers=headers, params=params)
-            data = resp.json()
-        except Exception as e:
-            print(resp.headers, e)
-            return False
+        for _ in range(MAX_RETRIES):
+            try:
+                resp = requests.get(url=CHECK_URL, headers=headers, params=params)
+                data = resp.json()
+                break
+            except Exception as e:
+                print('get_updates', resp.headers, e)
+                time.sleep(int(resp.headers['Retry-After']))
 
-        return data['flights_checked']
+        return data['flights_checked'] if type(data) == dict else False
 
     def handle(self, *args, **options):
         Flight.objects.all().delete()
@@ -55,7 +58,7 @@ class Command(BaseCommand):
                     resp = requests.get(url=DATA_URL, headers=headers, params=params)
                     data = resp.json()
                 except Exception as e:
-                    print(resp.headers, e)
+                    print('get_updates', resp.headers, e)
                     continue
 
                 for choice in data['data']:
