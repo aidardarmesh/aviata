@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 data = resp.json()
                 break
             except Exception as e:
-                print('get_updates', resp.headers, e)
+                print('valid_booking', resp.headers, e)
                 time.sleep(int(resp.headers['Retry-After']))
 
         return data['flights_checked'] if type(data) == dict else False
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     resp = requests.get(url=DATA_URL, headers=headers, params=params)
                     data = resp.json()
                 except Exception as e:
-                    print('get_updates', resp.headers, e)
+                    print('get_flights', resp.headers, e)
                     continue
 
                 for choice in data['data']:
